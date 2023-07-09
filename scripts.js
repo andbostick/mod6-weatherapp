@@ -19,7 +19,7 @@ function getGeoLocation() {
 
 function getCurrentDay(lat, lon) {
   fetch(
-    `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apikey}`
+    `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=imperial&appid=${apikey}`
   )
     .then(function (data) {
       return data.json();
@@ -47,9 +47,19 @@ function useGeoLocation(lat, lon) {
 
 function createCurrentDay(weatherData) {
   var currentDayCard = $(".card-body");
-  var locationTitle = $("<h3>");
-  locationTitle.text(weatherData.name);
-  currentDayCard.append(locationTitle);
+    var locationTitle = $("<h3>");
+    var humidityData = $("<p>")
+    var windData = $("<p>")
+    var tempData = $("<p>")
+    locationTitle.text(weatherData.name);
+    humidityData.text(`Humidity: ${weatherData.main.humidity} %`);
+    tempData.text(`Temp: ${weatherData.main.temp}F`)
+    windData.text(`Wind: ${weatherData.wind.speed} MPH`)
+    currentDayCard.append(locationTitle);
+    currentDayCard.append(tempData);
+    currentDayCard.append(windData);
+    currentDayCard.append(humidityData);
+    
 }
 
 getGeoLocation();
