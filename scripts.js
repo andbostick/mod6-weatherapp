@@ -41,25 +41,52 @@ function useGeoLocation(lat, lon) {
     .then(function (res) {
       for (var i = 0; i < res.list.length; i += 8) {
         console.log(res.list[i]);
+        createForecast(res.list[i]);
       }
     });
 }
 
 function createCurrentDay(weatherData) {
-  var currentDayCard = $(".card-body");
-    var locationTitle = $("<h3>");
-    var humidityData = $("<p>")
-    var windData = $("<p>")
-    var tempData = $("<p>")
-    locationTitle.text(weatherData.name);
-    humidityData.text(`Humidity: ${weatherData.main.humidity} %`);
-    tempData.text(`Temp: ${weatherData.main.temp}F`)
-    windData.text(`Wind: ${weatherData.wind.speed} MPH`)
-    currentDayCard.append(locationTitle);
-    currentDayCard.append(tempData);
-    currentDayCard.append(windData);
-    currentDayCard.append(humidityData);
-    
+  var currentDayCard = $(".current-day");
+  var locationTitle = $("<h3>");
+  var humidityData = $("<p>");
+  var windData = $("<p>");
+  var tempData = $("<p>");
+  locationTitle.text(weatherData.name);
+  humidityData.text(`Humidity: ${weatherData.main.humidity} %`);
+  tempData.text(`Temp: ${weatherData.main.temp}F`);
+  windData.text(`Wind: ${weatherData.wind.speed} MPH`);
+  currentDayCard.append(locationTitle);
+  currentDayCard.append(tempData);
+  currentDayCard.append(windData);
+  currentDayCard.append(humidityData);
+}
+
+function createForecast(weatherData) {
+  var mainDiv = $(".forecast");
+  var forcastCard = $("<div>");
+  var cardBody = $("<div>");
+  var locationTitle = $("<div>");
+  var tempData = $("<p>");
+  var humidityData = $("<p>");
+  var windData = $("<p>");
+
+  forcastCard.addClass("card");
+  locationTitle.addClass("card-header");
+  cardBody.addClass("card-body");
+  forcastCard.addClass("col-2 m-3 ");
+
+  locationTitle.text(weatherData.dt_txt);
+  tempData.text(`Temp: ${weatherData.main.temp}F`);
+  windData.text(`Wind: ${weatherData.wind.speed} MPH`);
+  humidityData.text(`Humidity: ${weatherData.main.humidity} %`);
+
+  mainDiv.append(forcastCard);
+  forcastCard.append(locationTitle);
+  forcastCard.append(cardBody);
+  cardBody.append(tempData);
+  cardBody.append(windData);
+  cardBody.append(humidityData);
 }
 
 getGeoLocation();
