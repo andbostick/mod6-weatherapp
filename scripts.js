@@ -144,5 +144,8 @@ $.each(localStorage, function (key, value) {
     });
   }
 });
+if (lastSearched) {
+    console.log('searched')
+    getGeoLocation(lastSearched);
+}
 
-getGeoLocation(lastSearched);
