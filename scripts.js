@@ -6,11 +6,22 @@ searchButton.on("click", getSearchVal);
 
 function getSearchVal(e) {
   e.preventDefault();
-  var searchVal = $(this).parent().find("#city-text").val();
-  getGeoLocation(searchVal)
+  var searchVal = $(this).parent().find("#city-text");
+  if (searchVal.val() === "") {
+    console.log("empty");
+  } else {
+    getGeoLocation(searchVal.val());
+    console.log(searchVal.val());
+    localStorage.setItem(
+      searchVal.val().toLowerCase(),
+      searchVal.val().toLowerCase()
+    );
+    searchVal.val("");
+  }
 }
 
 function getGeoLocation(search) {
+  clearPrevSearch();
   fetch(
     `https://api.openweathermap.org/geo/1.0/direct?q=${search}&limit=5&appid=${apikey}
       `
@@ -99,4 +110,26 @@ function createForecast(weatherData) {
   cardBody.append(humidityData);
 }
 
+function clearPrevSearch() {
+  var currentForecast = $(".current-day");
+  var fiveDayForecast = $(".forecast");
+  currentForecast.text("");
+  fiveDayForecast.text("");
+}
 
+$.each(localStorage, function (key, value) {
+  if (key == value) {
+    var regex = / /g;
+    var changeSpaceToDash = value;
+    var sectionDiv = $("section");
+    var prevSearchButton = $("<button>");
+    prevSearchButton.addClass("search btn btn-primary w-100 mt-3");
+
+    prevSearchButton.text(value);
+    prevSearchButton.attr("id", changeSpaceToDash.replaceAll(regex, "-"));
+    sectionDiv.append(prevSearchButton);
+    $("section").on("click", `#${value}`, function () {
+      getGeoLocation(value);
+    });
+  }
+});
