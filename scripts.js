@@ -1,5 +1,7 @@
 var apikey = "abafa6227b7a47dd38b617d1af16898c";
 
+var lastSearched;
+
 var searchButton = $(".search");
 
 searchButton.on("click", getSearchVal);
@@ -8,10 +10,9 @@ function getSearchVal(e) {
   e.preventDefault();
   var searchVal = $(this).parent().find("#city-text");
   if (searchVal.val() === "") {
-    console.log("empty");
   } else {
     getGeoLocation(searchVal.val());
-    console.log(searchVal.val());
+
     localStorage.setItem(
       searchVal.val().toLowerCase(),
       searchVal.val().toLowerCase()
@@ -32,7 +33,7 @@ function getGeoLocation(search) {
     .then(function (res) {
       var lat = res[0].lat;
       var lon = res[0].lon;
-      console.log(lat, lon);
+
       getCurrentDay(lat, lon);
       useGeoLocation(lat, lon);
     });
@@ -46,13 +47,11 @@ function getCurrentDay(lat, lon) {
       return data.json();
     })
     .then(function (res) {
-      console.log(res);
       createCurrentDay(res);
     });
 }
 
 function useGeoLocation(lat, lon) {
-  console.log(lat, lon);
   fetch(
     `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&units=imperial&appid=${apikey}`
   )
@@ -61,29 +60,36 @@ function useGeoLocation(lat, lon) {
     })
     .then(function (res) {
       for (var i = 0; i < res.list.length; i += 8) {
-        console.log(res.list[i]);
         createForecast(res.list[i]);
       }
     });
 }
 
 function createCurrentDay(weatherData) {
+  var date = new Date().toLocaleDateString("en-US");
+  var iconcode = weatherData.weather[0].icon;
   var currentDayCard = $(".current-day");
   var locationTitle = $("<h3>");
   var humidityData = $("<p>");
   var windData = $("<p>");
   var tempData = $("<p>");
-  locationTitle.text(weatherData.name);
+  var icon = $("<img>");
+  icon.attr("alt", "weather icon");
+  icon.attr("src", `http://openweathermap.org/img/w/${iconcode}.png`);
+  locationTitle.text(`${weatherData.name} (${date})`);
   humidityData.text(`Humidity: ${weatherData.main.humidity} %`);
   tempData.text(`Temp: ${weatherData.main.temp}F`);
   windData.text(`Wind: ${weatherData.wind.speed} MPH`);
   currentDayCard.append(locationTitle);
+  locationTitle.append(icon);
   currentDayCard.append(tempData);
   currentDayCard.append(windData);
   currentDayCard.append(humidityData);
 }
 
 function createForecast(weatherData) {
+  var dates = new Date(weatherData.dt_txt).toLocaleDateString("en-US");
+  var iconcode = weatherData.weather[0].icon;
   var mainDiv = $(".forecast");
   var forcastCard = $("<div>");
   var cardBody = $("<div>");
@@ -91,13 +97,17 @@ function createForecast(weatherData) {
   var tempData = $("<p>");
   var humidityData = $("<p>");
   var windData = $("<p>");
+  var icon = $("<img>");
+  icon.attr("alt", "weather icon");
+  icon.attr("src", `http://openweathermap.org/img/w/${iconcode}.png`);
 
-  forcastCard.addClass("card");
+  forcastCard.addClass("card bg-secondary text-white");
   locationTitle.addClass("card-header");
   cardBody.addClass("card-body");
   forcastCard.addClass("col-2 m-3 ");
 
-  locationTitle.text(weatherData.dt_txt);
+  locationTitle.text(dates);
+  locationTitle.append(icon);
   tempData.text(`Temp: ${weatherData.main.temp}F`);
   windData.text(`Wind: ${weatherData.wind.speed} MPH`);
   humidityData.text(`Humidity: ${weatherData.main.humidity} %`);
@@ -119,6 +129,7 @@ function clearPrevSearch() {
 
 $.each(localStorage, function (key, value) {
   if (key == value) {
+    lastSearched = value;
     var regex = / /g;
     var changeSpaceToDash = value;
     var sectionDiv = $("section");
@@ -133,3 +144,5 @@ $.each(localStorage, function (key, value) {
     });
   }
 });
+
+getGeoLocation(lastSearched);
