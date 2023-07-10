@@ -1,27 +1,33 @@
 var apikey = "abafa6227b7a47dd38b617d1af16898c";
 
+//a global variable for use when there is a previous search of a city
 var lastSearched;
 
 var searchButton = $(".search");
 
+//event listener for search button
 searchButton.on("click", getSearchVal);
 
 function getSearchVal(e) {
   e.preventDefault();
+  //grabs input value
   var searchVal = $(this).parent().find("#city-text");
+  //checks if input value isnt empty
   if (searchVal.val() === "") {
   } else {
     getGeoLocation(searchVal.val());
-
+    //saves to local stoarge
     localStorage.setItem(
       searchVal.val().toLowerCase(),
       searchVal.val().toLowerCase()
     );
+    //clears the input after searching
     searchVal.val("");
   }
 }
 
 function getGeoLocation(search) {
+  //calls function to clear page
   clearPrevSearch();
   fetch(
     `https://api.openweathermap.org/geo/1.0/direct?q=${search}&limit=5&appid=${apikey}
@@ -34,6 +40,7 @@ function getGeoLocation(search) {
       var lat = res[0].lat;
       var lon = res[0].lon;
 
+      //fetches lat and lon and passes them to other functions to use them
       getCurrentDay(lat, lon);
       useGeoLocation(lat, lon);
     });
@@ -47,6 +54,7 @@ function getCurrentDay(lat, lon) {
       return data.json();
     })
     .then(function (res) {
+      //creates a 1 day card of weather
       createCurrentDay(res);
     });
 }
@@ -59,6 +67,7 @@ function useGeoLocation(lat, lon) {
       return data.json();
     })
     .then(function (res) {
+      //loops through the data to return 5 seperate days of weather and creates cards
       for (var i = 0; i < res.list.length; i += 8) {
         createForecast(res.list[i]);
       }
@@ -74,6 +83,7 @@ function createCurrentDay(weatherData) {
   var windData = $("<p>");
   var tempData = $("<p>");
   var icon = $("<img>");
+
   icon.attr("alt", "weather icon");
   icon.attr("src", `http://openweathermap.org/img/w/${iconcode}.png`);
   locationTitle.text(`${weatherData.name} (${date})`);
@@ -128,24 +138,30 @@ function clearPrevSearch() {
 }
 
 $.each(localStorage, function (key, value) {
-  if (key == value) {
-    lastSearched = value;
-    var regex = / /g;
+    //checks if the key value pair exists
+    if (key == value) {
+      //updates the variable we created at the begining 
+        lastSearched = value;
+        //regex to remove spaces
+        var regex = / /g;
+        //variable to apply the regex to
     var changeSpaceToDash = value;
     var sectionDiv = $("section");
     var prevSearchButton = $("<button>");
     prevSearchButton.addClass("search btn btn-primary w-100 mt-3");
 
-    prevSearchButton.text(value);
+        prevSearchButton.text(value);
+        //removes the spaces and replaces it with a -
     prevSearchButton.attr("id", changeSpaceToDash.replaceAll(regex, "-"));
-    sectionDiv.append(prevSearchButton);
+        sectionDiv.append(prevSearchButton);
+        //adds the event listener to the new buttons
     $("section").on("click", `#${value}`, function () {
       getGeoLocation(value);
     });
   }
 });
+//checks if there was a last searched and if there was call that 
 if (lastSearched) {
-    console.log('searched')
-    getGeoLocation(lastSearched);
+  console.log("searched");
+  getGeoLocation(lastSearched);
 }
-
