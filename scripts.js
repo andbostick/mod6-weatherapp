@@ -1,9 +1,19 @@
 var apikey = "abafa6227b7a47dd38b617d1af16898c";
 
-function getGeoLocation() {
+var searchButton = $(".search");
+
+searchButton.on("click", getSearchVal);
+
+function getSearchVal(e) {
+  e.preventDefault();
+  var searchVal = $(this).parent().find("#city-text").val();
+  getGeoLocation(searchVal)
+}
+
+function getGeoLocation(search) {
   fetch(
-    "https://api.openweathermap.org/geo/1.0/direct?q=London&limit=5&appid=" +
-      apikey
+    `https://api.openweathermap.org/geo/1.0/direct?q=${search}&limit=5&appid=${apikey}
+      `
   )
     .then(function (data) {
       return data.json();
@@ -89,4 +99,4 @@ function createForecast(weatherData) {
   cardBody.append(humidityData);
 }
 
-getGeoLocation();
+
